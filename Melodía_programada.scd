@@ -1,0 +1,146 @@
+//prendalo
+
+s.boot
+Server.killAll
+
+//Cuantizar tempo
+
+p=ProxySpace.push.quant_(4);
+p.clock=TempoClock.default.tempo_(60/60);
+
+
+//preambulo
+{ SinOscFB.ar([[67,71,62,66].midicps,301], MouseX.kr(0,4),0.3); }.scope;
+
+
+//Melodia
+
+(
+SynthDef(\melodi,{|gate=1,freq|
+	var envo,onda,noti;
+	envo= (EnvGen.kr(Env.perc(0,4),gate,doneAction:2));
+	noti= Pulse.ar(freq,0.3,0.2);
+	onda =(RLPF.ar(noti,LFNoise0.kr(12,3900,4100),LFNoise0.kr(6,0.3,0.3)));
+Out.ar(0,Pan2.ar(envo*onda,SinOsc.kr(1),0.5))}).send(s);
+)
+
+a=Synth(\melodi,[\freq,63.midicps*12.midiratio])
+a.free
+
+
+//Mueve la Melodia
+
+~h1.play
+~h1=Pbind(\instrument, \melodi, \dur, Pseq([2,2,2,2,2,2,2,2,4], inf), \vol, Pseq([1.0,3,0.5,1], inf), \freq, Pseq([71,66,69,64,67,62,66,62,71,67,71,67,62,62,61,64,61,71,69,61,69,62,61,69,68,71,69,62,68,69,69,62,67,62,67,69,62,69,66,67].midicps*12.midiratio, inf))
+~h1.release
+
+//Pastel de ritmos
+// 0.8, 1.2, 2    intro
+// 1 pre verso
+// 0.5 puente
+// 0.25, 0.5, 0.5, 0.25, 1, 0.5, 0.25, 1, 0.25  verso
+
+//pastel Frecuencias
+//71,66,69,64,67,62,66,62,71,67,71,67,62,62,61,64,61,71,69,61,69,62,61,69,68,71,69,62,68,69,69,62,67,62,67,69,62,69,66,67
+
+
+
+//armonia
+//ayuda de Hernani Villaseñor Ramírez supercollider MX
+
+(
+SynthDef(\string, {|gate=1, acordes=440, am=1|
+var onda,envo;
+envo= EnvGen.kr(Env.asr(0,0.5,0.5), gate, doneAction:2); //cambié el env, doneAction:2
+onda= SinOsc.ar(acordes, 0, SinOsc.kr(am,0,0.3,0.3));
+Out.ar(0,Pan2.ar(envo * onda, 0))}).add; // mejor add que send
+)
+
+d= Synth(\string)
+
+//Mueve la Armonia
+
+
+~h2.play;
+~h2=Pdef(\string, Pbind(\instrument, \string, \dur, Pseq([2,2,2,2,2,2,2,2,4], inf), \acordes, Pseq([[67,71,62,66],[60,64,67,71], [66,69,60,64], [71, 62, 66, 69], [64, 67, 71, 62], [69, 60, 64, 67], [67,71,62,66],[60,64,67,71],[62, 66, 69, 61],[67, 71, 62, 66], [61, 64, 67, 71], [66, 69, 61, 64], [71, 62, 66, 69], [64, 67, 71, 62], [69, 61, 64, 67],[62, 66, 69, 61],[69, 61, 64, 68],[62, 66, 69, 61], [68, 71, 62, 66], [61, 64, 68, 71], [66, 69, 61, 64], [71, 62, 66, 69], [64, 68, 71, 62],[69, 61, 64, 68]].mirror2.midicps, inf),\am, Prand([1,2,8,1,4,Pn(0.5,4),16],inf))); // no es necesario \vol
+~h2.release; // stop en lugar de release
+
+///Finis
+~h2=Pdef(\string, Pbind(\instrument, \string, \dur, Pseq([1,0.5,Pn(0.25,4),2,1,1,Pn(0.5,2)], inf), \acordes, Pseq([[67,71,62,66],[60,64,67,71], [66,69,60,64], [71, 62, 66, 69], [64, 67, 71, 62], [69, 60, 64, 67], [67,71,62,66],[60,64,67,71],[62, 66, 69, 61],[67, 71, 62, 66], [61, 64, 67, 71], [66, 69, 61, 64], [71, 62, 66, 69], [64, 67, 71, 62], [69, 61, 64, 67],[62, 66, 69, 61],[69, 61, 64, 68],[62, 66, 69, 61], [68, 71, 62, 66], [61, 64, 68, 71], [66, 69, 61, 64], [71, 62, 66, 69], [64, 68, 71, 62],[69, 61, 64, 68]].mirror2.midicps*(-12).midiratio, inf),\am, Prand([1,2,8,4,8,Pn(0.5,2),16],inf))); // no es necesario \vol
+
+//Pastel de Acordes
+
+// Tonalidad = Sol Mayor
+// G,C, F#º, Bm, Em, Am, D, G =
+//[[67,71,62,66],[60,64,67,71], [66,69,60,64], [71, 62, 66, 69], [64, 67, 71, 62], [69, 60, 64, 67], [67,71,62,66],[60,64,67,71]]
+
+//Tonalidad = Re Mayor
+// D , G, C#º, F#m, Bm, Em, A, D =
+//[[62, 66, 69, 61],[67, 71, 62, 66], [61, 64, 67, 71], [66, 69, 61, 64], [71, 62, 66, 69], [64, 67, 71, 62], [69, 61, 64, 67],[62, 66, 69, 61]]
+
+//Tonalidad = La Mayor
+// A, D, G#º, C#m, F#m, Bm, E, A =
+//[[69, 61, 64, 68],[62, 66, 69, 61], [68, 71, 62, 66], [61, 64, 68, 71], [66, 69, 61, 64], [71, 62, 66, 69], [64, 68, 71, 62],[69, 61, 64, 68]]
+
+//Tonalidad todas juntas
+//[[67,71,62,66],[60,64,67,71], [66,69,60,64], [71, 62, 66, 69], [64, 67, 71, 62], [69, 60, 64, 67], [67,71,62,66],[60,64,67,71],[62, 66, 69, 61],[67, 71, 62, 66], [61, 64, 67, 71], [66, 69, 61, 64], [71, 62, 66, 69], [64, 67, 71, 62], [69, 61, 64, 67],[62, 66, 69, 61],[69, 61, 64, 68],[62, 66, 69, 61], [68, 71, 62, 66], [61, 64, 68, 71], [66, 69, 61, 64], [71, 62, 66, 69], [64, 68, 71, 62],[69, 61, 64, 68]]
+
+//Pastel de ritmos
+
+//2,2,2,2,2,2,2,2,4
+
+
+
+//Bombo kick
+
+(
+SynthDef(\kik, { |preamp = 1, amp = 1|
+var freq = EnvGen.kr(Env([400, 66], [0.08], -3)),
+sig = SinOsc.ar(freq, 0.5pi, preamp).distort * amp
+* EnvGen.kr(Env([0, 1, 0.8, 0], [0.01, 0.1, 0.2]), doneAction: 0);
+Out.ar(0, sig ! 2);
+}).send(s);
+)
+
+c= Synth(\kik)
+
+
+//Mueve el Kick
+
+~h4.play
+~h4=Pbind(\instrument, \kik, \dur, Pseq([8,0.25], inf), \vol, Pseq([0], inf), \preamp, Pseq([4],inf), \amp,Pseq([1], inf))
+~h4.release
+
+
+
+//Bombo Noise
+
+(
+SynthDef(\noise, { |preamp = 1, amp = 1|
+var freq = EnvGen.kr(Env([400, 66], [0.08], -3)),
+	sig = SinOscFB.ar((67).midicps*SinOscFB.ar(MouseY.kr(1,1000,'exponential'))+200,MouseX.kr(0.5pi,pi))*0.1* amp * EnvGen.kr(Env([0, 1, 2, 0], [4, 0.1, 2]), doneAction: 0);
+Out.ar(0, sig ! 2);
+}).send(s);
+)
+
+c= Synth(\kik)
+
+
+//Mueve el Noise
+
+~h3.play
+~h3=Pbind(\instrument, \noise, \dur, Pseq([2], inf), \vol, Pseq([0], inf), \preamp, Pseq([0.5],inf), \amp,Pseq([1], inf))
+~h3.release
+
+
+
+
+//Todo junto
+
+~h2=Pdef(\string, Pbind(\instrument, \string, \dur, Pseq([2,2,2,2,2,2,2,2,4], inf), \acordes, Pseq([[67,71,62,66],[60,64,67,71], [66,69,60,64], [71, 62, 66, 69], [64, 67, 71, 62], [69, 60, 64, 67], [67,71,62,66],[60,64,67,71],[62, 66, 69, 61],[67, 71, 62, 66], [61, 64, 67, 71], [66, 69, 61, 64], [71, 62, 66, 69], [64, 67, 71, 62], [69, 61, 64, 67],[62, 66, 69, 61],[69, 61, 64, 68],[62, 66, 69, 61], [68, 71, 62, 66], [61, 64, 68, 71], [66, 69, 61, 64], [71, 62, 66, 69], [64, 68, 71, 62],[69, 61, 64, 68]].mirror2.midicps, inf),\am, Prand([1,2,8,1,4,Pn(0.5,4),16],inf))); // no es necesario \vol
+
+
+
+~h1=Pbind(\instrument, \melodi, \dur, Pseq([4,2,2,2,2,1,1,1,1,1,1,1,1,4,1,2,1,4,1,2,1,4,1,3,1,3,2,2,2,2,2,2,4,3,1,1,3,1,3,4], inf), \vol, Pseq([1.0,3,0.5,1], inf), \freq, Pseq([71,66,69,64,67,62,66,62,71,67,71,67,62,62,61,64,61,71,69,61,69,62,61,69,68,71,69,62,68,69,69,62,67,62,67,69,62,69,66,67].midicps*12.midiratio, inf))
+
+
